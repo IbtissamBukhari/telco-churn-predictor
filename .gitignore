@@ -1,0 +1,22 @@
+# Conda Environment
+churn-env/
+__pycache__/
+*.pyc
+*.pyo
+
+# Data — never push raw data to GitHub
+data/raw/
+data/processed/
+
+# Models — too large for GitHub
+models/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
