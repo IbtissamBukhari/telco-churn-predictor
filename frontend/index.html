@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Telco Churn Predictor</title>
+  <meta name="description" content="Predict whether a telecom customer will cancel, see what drives the score, and get retention actions.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%232a78d6'/%3E%3Cpath d='M3 11l3-3 3 2 4-5' stroke='white' stroke-width='1.6' fill='none'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <div>
+        <h1>Telco Churn Predictor</h1>
+        <p class="lead">Estimate how likely a telecom customer is to cancel, see which details drive the score, and get suggested retention actions.</p>
+      </div>
+      <nav class="links">
+        <a href="/docs">API docs</a>
+        <a href="https://github.com/IbtissamBukhari/telco-churn-predictor">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap layout">
+    <form id="customer-form" class="panel" novalidate>
+      <div class="presets">
+        <span>Try a profile:</span>
+        <button type="button" data-preset="risky">New fiber customer</button>
+        <button type="button" data-preset="loyal">Long-term customer</button>
+        <button type="button" data-preset="basic">Phone-only customer</button>
+      </div>
+
+      <fieldset>
+        <legend>Customer</legend>
+        <div class="grid">
+          <label>Gender
+            <select name="gender"><option>Female</option><option>Male</option></select>
+          </label>
+          <label>Senior citizen (65+)
+            <select name="SeniorCitizen"><option value="0">No</option><option value="1">Yes</option></select>
+          </label>
+          <label>Has partner
+            <select name="Partner"><option>No</option><option>Yes</option></select>
+          </label>
+          <label>Has dependents
+            <select name="Dependents"><option>No</option><option>Yes</option></select>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Account</legend>
+        <div class="grid">
+          <label class="range">Tenure <output id="tenure-out">3 months</output>
+            <input type="range" name="tenure" min="0" max="72" step="1" value="3">
+          </label>
+          <label class="range">Monthly charges <output id="charges-out">$89.50</output>
+            <input type="range" name="MonthlyCharges" min="18" max="120" step="0.5" value="89.5">
+          </label>
+          <label>Contract
+            <select name="Contract"><option>Month-to-month</option><option>One year</option><option>Two year</option></select>
+          </label>
+          <label>Payment method
+            <select name="PaymentMethod">
+              <option>Electronic check</option>
+              <option>Mailed check</option>
+              <option>Bank transfer (automatic)</option>
+              <option>Credit card (automatic)</option>
+            </select>
+          </label>
+          <label>Paperless billing
+            <select name="PaperlessBilling"><option>Yes</option><option>No</option></select>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Phone</legend>
+        <div class="grid">
+          <label>Phone service
+            <select name="PhoneService"><option>Yes</option><option>No</option></select>
+          </label>
+          <label>Multiple lines
+            <select name="MultipleLines" data-phone><option>No</option><option>Yes</option></select>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Internet</legend>
+        <div class="grid">
+          <label>Internet service
+            <select name="InternetService"><option>Fiber optic</option><option>DSL</option><option>No</option></select>
+          </label>
+          <label>Online security
+            <select name="OnlineSecurity" data-addon><option>No</option><option>Yes</option></select>
+          </label>
+          <label>Online backup
+            <select name="OnlineBackup" data-addon><option>No</option><option>Yes</option></select>
+          </label>
+          <label>Device protection
+            <select name="DeviceProtection" data-addon><option>No</option><option>Yes</option></select>
+          </label>
+          <label>Tech support
+            <select name="TechSupport" data-addon><option>No</option><option>Yes</option></select>
+          </label>
+          <label>Streaming TV
+            <select name="StreamingTV" data-addon><option>No</option><option>Yes</option></select>
+          </label>
+          <label>Streaming movies
+            <select name="StreamingMovies" data-addon><option>No</option><option>Yes</option></select>
+          </label>
+        </div>
+      </fieldset>
+      <p class="hint">The score updates as you change any field.</p>
+    </form>
+
+    <section class="results" aria-live="polite">
+      <div class="panel score-card">
+        <div class="score-head">
+          <h2>Churn risk</h2>
+          <span id="risk-badge" class="badge">-</span>
+        </div>
+        <div class="score"><span id="probability">--</span><small>probability of cancelling</small></div>
+        <div class="meter" role="img" id="meter" aria-label="Churn probability">
+          <div class="meter-fill" id="meter-fill"></div>
+          <span class="tick" style="left:40%"></span>
+          <span class="tick" style="left:70%"></span>
+        </div>
+        <div class="meter-scale"><span>Low</span><span style="left:40%">40%</span><span style="left:70%">70%</span><span>High</span></div>
+        <p id="verdict" class="verdict"></p>
+        <p id="error" class="error" hidden></p>
+      </div>
+
+      <div class="panel">
+        <h2>What drives this score</h2>
+        <p class="sub">Each bar is how much the input moves the score compared with an average customer.</p>
+        <div class="legend">
+          <span><i class="sw up"></i>Raises risk</span>
+          <span><i class="sw down"></i>Lowers risk</span>
+        </div>
+        <div id="factors" class="factors"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Suggested actions</h2>
+        <ul id="recommendations" class="recs"></ul>
+      </div>
+
+      <div class="panel model">
+        <h2>About the model</h2>
+        <p class="sub" id="model-summary">Logistic Regression trained on the IBM Telco Customer Churn dataset.</p>
+        <div class="stats" id="stats"></div>
+        <p class="note">The model is tuned for recall: it catches most customers who leave, at the cost of some false alarms. For a retention team, a missed churner usually costs more than an unnecessary discount offer.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap foot">
+    Built by Syed Ali Ibtissam Bukhari. Data: IBM Telco Customer Churn (7,043 customers). Runs on free hosting, so the first request after a quiet period can take up to a minute.
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

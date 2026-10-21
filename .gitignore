@@ -1,22 +1,26 @@
-# Conda Environment
+# Environments
 churn-env/
+venv/
+.venv/
 __pycache__/
 *.pyc
 *.pyo
+.pytest_cache/
 
-# Data — never push raw data to GitHub
-data/raw/
-data/processed/
+# Data: downloaded by src/data_loader.py, never committed
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
 
-# Models — too large for GitHub
-models/
+# Trained models are rebuilt with `python -m src.train`; only the metrics are committed
+models/*
+!models/metrics.json
 
 # Jupyter checkpoints
 .ipynb_checkpoints/
 
-# OS files
+# OS and editor files
 .DS_Store
 Thumbs.db
-
-# VS Code
 .vscode/

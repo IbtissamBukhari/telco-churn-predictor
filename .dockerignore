@@ -1,0 +1,14 @@
+.git
+.github
+venv
+.venv
+churn-env
+__pycache__
+*.pyc
+.pytest_cache
+notebooks
+outputs
+data/raw/*
+data/processed/*
+models/*.joblib
+models/*.pkl
