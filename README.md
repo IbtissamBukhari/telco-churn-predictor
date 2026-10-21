@@ -4,7 +4,7 @@
 
 Predicts how likely a telecom customer is to cancel their subscription, explains which details drive that score, and suggests retention actions. Trained on the IBM Telco Customer Churn dataset (7,043 customers) and served through a FastAPI REST API with a web interface.
 
-**Live demo:** LIVE_URL
+**Live demo:** https://telco-churn-predictor-62b1.onrender.com (free hosting: the first request after a quiet period can take up to a minute)
 
 ![Web app](docs/app_screenshot.png)
 
@@ -76,7 +76,7 @@ For every customer the API returns the inputs that push the score up or down the
 Example request:
 
 ```bash
-curl -X POST LIVE_URL/predict \
+curl -X POST https://telco-churn-predictor-62b1.onrender.com/predict \
   -H "Content-Type: application/json" \
   -d '{"gender": "Female", "SeniorCitizen": 0, "Partner": "No", "Dependents": "No",
        "tenure": 3, "PhoneService": "Yes", "MultipleLines": "No",
